@@ -1,10 +1,9 @@
-// /frontend/script.js - FINAL ROBUST VERSION
+// /frontend/script.js - FINAL CORRECTED VERSION
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- This function will now contain all the chatbot's logic ---
+    // This function will contain all the chatbot's interactive logic.
     function initChatbot() {
-        // --- DOM Element References (now they are guaranteed to exist) ---
         const chatBubble = document.getElementById('chat-bubble');
         const chatWindow = document.getElementById('chat-window');
         const closeBtn = document.getElementById('close-btn');
@@ -13,15 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const chatInput = document.getElementById('chat-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // --- State Management ---
         let chatHistory = [];
         const API_BASE_URL = 'https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net';
 
-        // --- UI Event Listeners ---
         chatBubble.addEventListener('click', () => toggleChatWindow());
         closeBtn.addEventListener('click', () => toggleChatWindow());
 
-        // --- Main Logic ---
         function toggleChatWindow() {
             chatWindow.classList.toggle('hidden');
             if (!chatWindow.classList.contains('hidden')) {
@@ -61,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) throw new Error('Network response was not ok.');
 
                 removeTypingIndicator();
-
                 const botMessageElement = document.createElement('div');
                 botMessageElement.className = 'message bot';
                 chatBody.appendChild(botMessageElement);
@@ -75,27 +70,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (done) break;
                     const chunk = decoder.decode(value);
                     botReply += chunk;
-                    botMessageElement.innerHTML = marked.parse(botReply);
+                    botMessageElement.innerHTML = addMessageToUI(botReply, 'bot', true); // Pass true to get parsed HTML
                     scrollToBottom();
                 }
                 chatHistory.push({ role: 'assistant', content: botReply });
             } catch (error) {
                 console.error('Error fetching bot response:', error);
                 removeTypingIndicator();
-                addMessageToUI("I'm having trouble connecting right now. Please try again later.", 'bot');
+                addMessageToUI("I'm having trouble connecting right now. Please try again later.", 'bot', false);
             }
         }
 
-        function addMessageToUI(message, sender) {
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${sender}`;
-            if (sender === 'bot') {
-                messageElement.innerHTML = marked.parse(message);
+        function addMessageToUI(message, sender, isStreaming = false) {
+            // This is the robust way to handle Markdown parsing
+            if (sender === 'bot' && typeof marked !== 'undefined') {
+                const parsedHtml = marked.parse(message);
+                if (isStreaming) return parsedHtml; // Return HTML for streaming
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${sender}`;
+                messageElement.innerHTML = parsedHtml;
+                chatBody.appendChild(messageElement);
             } else {
+                if (isStreaming) return message; // Return plain text for streaming
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${sender}`;
                 messageElement.textContent = message;
+                chatBody.appendChild(messageElement);
             }
-            chatBody.appendChild(messageElement);
-            scrollToBottom();
+             if(!isStreaming) scrollToBottom();
         }
 
         let typingIndicator;
@@ -120,9 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-    // --- This is the new setup block at the bottom ---
-    // It creates the elements first, then calls initChatbot()
+    // --- NEW, ROBUST SETUP BLOCK ---
 
     // 1. Inject the CSS file
     const cssLink = document.createElement('link');
@@ -130,7 +130,22 @@ document.addEventListener('DOMContentLoaded', () => {
     cssLink.href = 'https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net/static/style.css';
     document.head.appendChild(cssLink);
 
-    // 2. Create the HTML for the widget
+    // 2. Inject the Markdown library script in the background
+    const markedScript = document.createElement('script');
+    markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    //chatgpt suggested
+    markedScript.onload = () => {
+        initChatbot(); // ✅ Only run chatbot after marked is ready
+    };
+
+    markedScript.onerror = () => {
+        console.warn('marked.js failed to load. Using plain text fallback.');
+        window.marked = { parse: (x) => x }; // Safe fallback
+        initChatbot();
+    };
+    document.head.appendChild(markedScript);
+
+    // 3. Create the HTML for the widget
     const chatWidgetContainer = document.createElement('div');
     chatWidgetContainer.id = 'chat-widget-container';
     chatWidgetContainer.innerHTML = `
@@ -159,13 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.body.appendChild(chatWidgetContainer);
 
-    // 3. Add the Markdown library, then initialize the chatbot
-    const markedScript = document.createElement('script');
-    markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-    markedScript.onload = () => {
-        // IMPORTANT: Call initChatbot() only AFTER marked.js has loaded.
-        initChatbot();
-    };
-    document.head.appendChild(markedScript);
+    // 4. Initialize the chatbot's interactive logic immediately.
+    initChatbot();
 
 });
