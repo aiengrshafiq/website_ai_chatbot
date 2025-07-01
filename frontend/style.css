@@ -45,7 +45,7 @@
     width: 370px;
     height: 80vh;
     max-height: 600px;
-    background: var(--widget-bg);
+    background: #ffffff;
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     display: flex;
@@ -54,15 +54,23 @@
     position: absolute;
     bottom: 80px;
     right: 0;
-    transition: opacity 0.3s, transform 0.3s;
+    
+    /* These are the crucial lines for the new JS to work */
+    opacity: 0;
+    transform: scale(0);
     transform-origin: bottom right;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none; /* Add this to prevent interaction when hidden */
 }
 #chat-window.hidden {
     opacity: 0;
     transform: scale(0);
     pointer-events: none;
 }
-
+#chat-window.open {
+    transform: scale(1);
+    opacity: 1;
+}
 .chat-header {
     background: var(--primary-color);
     color: var(--font-color-light);

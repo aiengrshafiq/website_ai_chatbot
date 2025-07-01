@@ -5,29 +5,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // This function contains all the chatbot's interactive logic.
     function initChatbot() {
-        console.log("Step 4: initChatbot() has been called.");
+    console.log("Step 4: initChatbot() has been called.");
 
-        const chatBubble = document.getElementById('chat-bubble');
-        const chatWindow = document.getElementById('chat-window');
-        // ... (the rest of your variables)
+    const chatBubble = document.getElementById('chat-bubble');
+    const chatWindow = document.getElementById('chat-window');
 
-        if (chatBubble && chatWindow) {
-            console.log("Step 5: Chat bubble and window elements found successfully.");
-            chatBubble.addEventListener('click', () => {
-                console.log("Bubble clicked! Toggling window.");
-                chatWindow.classList.toggle('hidden');
-                if (!chatWindow.classList.contains('hidden')) {
-                    setTimeout(() => document.getElementById('chat-input').focus(), 100);
-                }
-            });
-            document.getElementById('close-btn').addEventListener('click', () => {
-                 console.log("Close button clicked! Toggling window.");
-                 chatWindow.classList.toggle('hidden');
-            });
-        } else {
-            console.error("FATAL ERROR: Chat bubble or window element was not found in the DOM.");
-            return; // Stop execution if UI elements aren't found
-        }
+    if (chatBubble && chatWindow) {
+        console.log("Step 5: Chat bubble and window elements found successfully.");
+
+        // This is the new, more direct click logic
+        const toggleVisibility = () => {
+            console.log("Bubble or Close clicked! Toggling visibility.");
+            const isHidden = chatWindow.style.opacity === '0' || chatWindow.style.opacity === '';
+            if (isHidden) {
+                chatWindow.style.opacity = '1';
+                chatWindow.style.transform = 'scale(1)';
+                chatWindow.style.pointerEvents = 'auto';
+                setTimeout(() => document.getElementById('chat-input').focus(), 100);
+            } else {
+                chatWindow.style.opacity = '0';
+                chatWindow.style.transform = 'scale(0)';
+                chatWindow.style.pointerEvents = 'none';
+            }
+        };
+
+        chatBubble.addEventListener('click', toggleVisibility);
+        document.getElementById('close-btn').addEventListener('click', toggleVisibility);
+
+    } else {
+        console.error("FATAL ERROR: Chat bubble or window element was not found in the DOM.");
+        return;
+    }
         
         // --- The rest of your working chat logic ---
         const chatBody = document.getElementById('chat-body');
