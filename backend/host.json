@@ -14,13 +14,15 @@
   },
   "customHandler": {
     "description": {
-      "defaultExecutablePath": "gunicorn",
-      "workingDirectory": "",
+      "defaultExecutablePath": "python",
       "arguments": [
-        "-w", "4",
-        "-k", "uvicorn.workers.UvicornH11Worker",
-        "--bind", "0.0.0.0:%FUNCTIONS_CUSTOMHANDLER_PORT%",
-        "main:app"
+        "-m",
+        "uvicorn",
+        "main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "%FUNCTIONS_CUSTOMHANDLER_PORT%"
       ]
     },
     "enableForwardingHttpRequest": true
