@@ -1,0 +1,33 @@
+// /backend/host.json
+
+{
+  "version": "2.0",
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Request"
+      }
+    }
+  },
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle",
+    "version": "[4.*, 5.0.0)"
+  },
+  "customHandler": {
+    "description": {
+      "defaultExecutablePath": "gunicorn",
+      "workingDirectory": "",
+      "arguments": [
+        "-w",
+        "4",
+        "-k",
+        "uvicorn.workers.UvicornWorker",
+        "-b",
+        "0.0.0.0:8000",
+        "main:app"
+      ]
+    },
+    "enableForwardingHttpRequest": true
+  }
+}
