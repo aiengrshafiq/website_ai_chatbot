@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State Management ---
     let chatHistory = []; // Stores the conversation { role: 'user'/'model', content: 'message' }
-    const API_BASE_URL = ''; // IMPORTANT: Replace this after deployment
+    const API_BASE_URL = 'https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net'; // IMPORTANT: Replace this after deployment
 
     // --- UI Event Listeners ---
     chatBubble.addEventListener('click', () => toggleChatWindow());
@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleUserMessage(message) {
         // Add user message to UI and history
         addMessageToUI(message, 'user');
-        chatHistory.push({ role: 'user', parts: [{ text: message }] });
+        
+        chatHistory.push({ role: 'user', content: message });
         chatInput.value = '';
 
         // Show typing indicator and get bot response
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add bot reply to UI and history
             removeTypingIndicator();
             addMessageToUI(botReply, 'bot');
-            chatHistory.push({ role: 'model', parts: [{ text: botReply }] });
+            chatHistory.push({ role: 'assistant', content: botReply });
 
         } catch (error) {
             console.error('Error fetching bot response:', error);

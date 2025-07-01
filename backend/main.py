@@ -40,7 +40,9 @@ async def chat(request: ChatRequest):
         bot_reply = response.choices[0].message.content
         return ChatResponse(reply=bot_reply)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        # This will print the full, detailed error to your Azure logs
+        print(f"AN OPENAI API ERROR OCCURRED: {e}")
+        # Still return a generic message to the user for security
         return ChatResponse(reply="Sorry, something went wrong on my end. Please try again in a moment.")
 
 # Mount the static files from the 'static' directory
