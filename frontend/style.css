@@ -16,6 +16,16 @@
     z-index: 1000;
 }
 
+/* In style.css */
+#chat-body {
+    display: flex; /* Add this */
+    flex-direction: column; /* Add this */
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: var(--background-color);
+}
+
 #chat-bubble {
     width: 60px;
     height: 60px;
@@ -64,22 +74,35 @@
 .chat-header h3 { margin: 0; font-size: 1.1em; }
 #close-btn { background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; }
 
-#chat-body {
-    flex-grow: 1;
-    padding: 15px;
-    overflow-y: auto;
-    background: var(--background-color);
-}
+/* In style.css - replace your old .message styles with this */
 .message {
     margin-bottom: 10px;
     padding: 10px 15px;
     border-radius: 18px;
     max-width: 80%;
     line-height: 1.4;
+    width: fit-content; /* Add this to make bubbles fit content */
 }
-.message.bot { background: var(--bot-message-bg); color: var(--font-color); border-bottom-left-radius: 4px; align-self: flex-start; }
-.message.user { background: var(--user-message-bg); color: var(--font-color-light); border-bottom-right-radius: 4px; align-self: flex-end; }
-.message.typing { font-style: italic; color: #888; } /* Typing indicator style */
+
+.message.bot { 
+    background: var(--bot-message-bg); 
+    color: var(--font-color); 
+    border-bottom-left-radius: 4px; 
+    align-self: flex-start; /* Aligns bot messages to the left */
+}
+
+.message.user { 
+    background: var(--user-message-bg); 
+    color: var(--font-color-light); 
+    border-bottom-right-radius: 4px; 
+    align-self: flex-end; /* Aligns user messages to the right */
+}
+
+.message.typing { 
+    font-style: italic; 
+    color: #888; 
+    align-self: flex-start; /* Aligns typing indicator to the left */
+}
 
 #chat-input-container { padding: 10px; background: var(--widget-bg); }
 #chat-form { display: flex; }

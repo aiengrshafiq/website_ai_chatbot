@@ -62,15 +62,31 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify(payload)
         });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok.');
-        }
-
-        const data = await response.json();
-        const botReply = data.reply;
+        if (!response.ok) throw new Error('Network response was not ok.');
 
         removeTypingIndicator();
-        addMessageToUI(botReply, 'bot');
+
+        // Create a new bot message element to stream content into
+        const botMessageElement = document.createElement('div');
+        botMessageElement.className = 'message bot';
+        chatBody.appendChild(botMessageElement);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let botReply = '';
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            botReply += chunk;
+            // Parse and render the content as it streams in
+            botMessageElement.innerHTML = marked.parse(botReply);
+            scrollToBottom();
+        }
+
+        // Add the final, complete message to history
         chatHistory.push({ role: 'assistant', content: botReply });
 
     } catch (error) {
@@ -82,12 +98,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UI Helper Functions ---
     function addMessageToUI(message, sender) {
-        const messageElement = document.createElement('div');
-        messageElement.className = `message ${sender}`;
+    const messageElement = document.createElement('div');
+    messageElement.className = `message ${sender}`;
+
+    if (sender === 'bot') {
+        // If the message is from the bot, parse it as Markdown
+        messageElement.innerHTML = marked.parse(message);
+    } else {
+        // Otherwise, just set the plain text
         messageElement.textContent = message;
-        chatBody.appendChild(messageElement);
-        scrollToBottom();
     }
+
+    chatBody.appendChild(messageElement);
+    scrollToBottom();
+}
 
     let typingIndicator;
     function showTypingIndicator() {
