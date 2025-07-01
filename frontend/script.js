@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State Management ---
     let chatHistory = []; // Stores the conversation { role: 'user'/'model', content: 'message' }
-    const API_BASE_URL = '6t3mediachatbot.azurewebsites.net'; // IMPORTANT: Replace this after deployment
+    const API_BASE_URL = 'https://6t3mediachatbot.azurewebsites.net/'; // IMPORTANT: Replace this after deployment
 
     // --- UI Event Listeners ---
     chatBubble.addEventListener('click', () => toggleChatWindow());
