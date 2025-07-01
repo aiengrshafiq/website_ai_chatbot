@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Main Logic ---
     function toggleChatWindow() {
         chatWindow.classList.toggle('hidden');
+        if (!chatWindow.classList.contains('hidden')) {
+            setTimeout(() => chatInput.focus(), 100);
+        }
     }
 
     // Handle form submission
@@ -47,37 +50,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fetch response from the back-end API
     async function getBotResponse() {
-        // Prepare the payload for the API
-        const payload = {
-            message: chatHistory[chatHistory.length - 1].parts[0].text, // Last user message
-            history: chatHistory.slice(0, -1) // All previous history
-        };
+    const payload = {
+        message: chatHistory[chatHistory.length - 1].content,
+        history: chatHistory.slice(0, -1)
+    };
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok.');
-            }
-
-            const data = await response.json();
-            const botReply = data.reply;
-
-            // Add bot reply to UI and history
-            removeTypingIndicator();
-            addMessageToUI(botReply, 'bot');
-            chatHistory.push({ role: 'assistant', content: botReply });
-
-        } catch (error) {
-            console.error('Error fetching bot response:', error);
-            removeTypingIndicator();
-            addMessageToUI("I'm having trouble connecting right now. Please try again later.", 'bot');
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
         }
+
+        const data = await response.json();
+        const botReply = data.reply;
+
+        removeTypingIndicator();
+        addMessageToUI(botReply, 'bot');
+        chatHistory.push({ role: 'assistant', content: botReply });
+
+    } catch (error) {
+        console.error('Error fetching bot response:', error);
+        removeTypingIndicator();
+        addMessageToUI("I'm having trouble connecting right now. Please try again later.", 'bot');
     }
+}
 
     // --- UI Helper Functions ---
     function addMessageToUI(message, sender) {
