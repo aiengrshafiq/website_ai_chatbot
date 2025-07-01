@@ -3,7 +3,12 @@ name: Deploy Frontend to GitHub Pages
 on:
   push:
     branches:
-      - main # Run this workflow only when you push to the main branch
+      - main
+  workflow_dispatch:
+
+# Add this permissions block
+permissions:
+  contents: write # Allow write access to the repository's contents
 
 jobs:
   deploy:
@@ -16,4 +21,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./frontend # The folder you want to publish
+          publish_dir: ./frontend
