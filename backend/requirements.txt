@@ -1,0 +1,9 @@
+# /backend/requirements.txt
+
+fastapi
+uvicorn
+openai
+pydantic
+python-dotenv
+gunicorn
+fastapi-cors
