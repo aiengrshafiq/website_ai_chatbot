@@ -1,53 +1,31 @@
-// /frontend/script.js - FINAL DEBUG VERSION
+// /frontend/script.js - FINAL PRODUCTION VERSION
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Step 1: DOM Content Loaded. Starting chatbot setup.");
 
-    // This function contains all the chatbot's interactive logic.
     function initChatbot() {
-    console.log("Step 4: initChatbot() has been called.");
-
-    const chatBubble = document.getElementById('chat-bubble');
-    const chatWindow = document.getElementById('chat-window');
-
-    if (chatBubble && chatWindow) {
-        console.log("Step 5: Chat bubble and window elements found successfully.");
-
-        // This is the new, more direct click logic
-        const toggleVisibility = () => {
-    console.log("Bubble or Close clicked! Toggling visibility.");
-    const isHidden = chatWindow.classList.contains('hidden');
-
-    if (isHidden) {
-        chatWindow.classList.remove('hidden');
-        chatWindow.style.opacity = '1';
-        chatWindow.style.transform = 'scale(1)';
-        chatWindow.style.pointerEvents = 'auto';
-        setTimeout(() => document.getElementById('chat-input').focus(), 100);
-    } else {
-        chatWindow.classList.add('hidden');
-        chatWindow.style.opacity = '0';
-        chatWindow.style.transform = 'scale(0)';
-        chatWindow.style.pointerEvents = 'none';
-    }
-};
-
-        chatBubble.addEventListener('click', toggleVisibility);
-        document.getElementById('close-btn').addEventListener('click', toggleVisibility);
-
-    } else {
-        console.error("FATAL ERROR: Chat bubble or window element was not found in the DOM.");
-        return;
-    }
-        
-        // --- The rest of your working chat logic ---
+        const chatBubble = document.getElementById('chat-bubble');
+        const chatWindow = document.getElementById('chat-window');
+        const closeBtn = document.getElementById('close-btn');
         const chatBody = document.getElementById('chat-body');
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
         const sendBtn = document.getElementById('send-btn');
+
         let chatHistory = [];
         const API_BASE_URL = 'https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net';
 
+        // This function now toggles the 'open' class
+        const toggleChatWindow = () => {
+            chatWindow.classList.toggle('open');
+            if (chatWindow.classList.contains('open')) {
+                setTimeout(() => chatInput.focus(), 100);
+            }
+        };
+
+        chatBubble.addEventListener('click', toggleChatWindow);
+        closeBtn.addEventListener('click', toggleChatWindow);
+        
+        // --- Chat Logic ---
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const userMessage = chatInput.value.trim();
@@ -89,32 +67,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (done) break;
                     const chunk = decoder.decode(value);
                     botReply += chunk;
-                    botMessageElement.innerHTML = addMessageToUI(botReply, 'bot', true);
+                    botMessageElement.innerHTML = marked.parse(botReply);
                     scrollToBottom();
                 }
                 chatHistory.push({ role: 'assistant', content: botReply });
             } catch (error) {
                 console.error('Error fetching bot response:', error);
                 removeTypingIndicator();
-                addMessageToUI("I'm having trouble connecting right now. Please try again later.", 'bot', false);
+                addMessageToUI("I'm having trouble connecting right now. Please try again later.", 'bot');
             }
         }
 
-        function addMessageToUI(message, sender, isStreaming = false) {
-            let content = message;
-            if (sender === 'bot' && typeof marked !== 'undefined') {
-                content = marked.parse(message);
-            }
-            if (isStreaming) return content;
+        function addMessageToUI(message, sender) {
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender}`;
-            if (sender === 'bot') {
-                messageElement.innerHTML = content;
+            if (sender === 'bot' && typeof marked !== 'undefined') {
+                messageElement.innerHTML = marked.parse(message);
             } else {
-                messageElement.textContent = content;
+                messageElement.textContent = message;
             }
             chatBody.appendChild(messageElement);
-            if (!isStreaming) scrollToBottom();
+            scrollToBottom();
         }
 
         let typingIndicator;
@@ -139,10 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- CORRECTED SETUP BLOCK ---
-
-    // 1. Inject CSS and HTML first
-    console.log("Step 2: Injecting CSS and HTML into the page.");
+    // --- SETUP BLOCK ---
     const cssLink = document.createElement('link');
     cssLink.rel = 'stylesheet';
     cssLink.href = 'https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net/static/style.css';
@@ -154,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div id="chat-bubble">
              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
         </div>
-        <div id="chat-window" class="hidden">
+        <div id="chat-window">
             <div class="chat-header"><h3>AI Assistant</h3><button id="close-btn">&times;</button></div>
             <div id="chat-body"><div class="message bot">Hello! How can I help you today?</div></div>
             <div id="chat-input-container">
@@ -164,21 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.body.appendChild(chatWidgetContainer);
 
-    // 2. Load the Markdown library and initialize the chatbot logic in the callbacks.
-    console.log("Step 3: Loading external marked.js library. Waiting for onload or onerror...");
     const markedScript = document.createElement('script');
     markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-    
-    markedScript.onload = () => {
-        console.log("marked.js loaded successfully.");
-        initChatbot(); // Initialize after the library is ready
-    };
-    
+    markedScript.onload = () => initChatbot();
     markedScript.onerror = () => {
         console.warn('marked.js failed to load. Using plain text fallback.');
-        window.marked = { parse: (text) => text }; // Create a fallback object
-        initChatbot(); // Initialize even if the library fails
+        window.marked = { parse: (text) => text };
+        initChatbot();
     };
-
     document.head.appendChild(markedScript);
 });

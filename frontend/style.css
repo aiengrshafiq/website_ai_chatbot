@@ -1,4 +1,4 @@
-/* /frontend/style.css */
+/* /frontend/style.css - FINAL PRODUCTION VERSION */
 :root {
     --primary-color: #007bff;
     --background-color: #f4f7f6;
@@ -13,13 +13,13 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 1000;
+    z-index: 99999999 !important; /* Force it to be on top of everything */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* In style.css */
 #chat-body {
-    display: flex; /* Add this */
-    flex-direction: column; /* Add this */
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
     padding: 15px;
     overflow-y: auto;
@@ -45,7 +45,7 @@
     width: 370px;
     height: 80vh;
     max-height: 600px;
-    background: #ffffff;
+    background: var(--widget-bg);
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     display: flex;
@@ -54,23 +54,22 @@
     position: absolute;
     bottom: 80px;
     right: 0;
-    
-    /* These are the crucial lines for the new JS to work */
-    opacity: 0;
-    transform: scale(0);
     transform-origin: bottom right;
     transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none; /* Add this to prevent interaction when hidden */
-}
-#chat-window.hidden {
+    
+    /* Initially hidden */
     opacity: 0;
     transform: scale(0);
     pointer-events: none;
 }
+
+/* This class will now control visibility */
 #chat-window.open {
-    transform: scale(1);
     opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
 }
+
 .chat-header {
     background: var(--primary-color);
     color: var(--font-color-light);
@@ -78,61 +77,26 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 .chat-header h3 { margin: 0; font-size: 1.1em; }
 #close-btn { background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; }
 
-/* In style.css - replace your old .message styles with this */
 .message {
     margin-bottom: 10px;
     padding: 10px 15px;
     border-radius: 18px;
     max-width: 80%;
     line-height: 1.4;
-    width: fit-content; /* Add this to make bubbles fit content */
+    width: fit-content;
 }
+.message.bot { background: var(--bot-message-bg); color: var(--font-color); border-bottom-left-radius: 4px; align-self: flex-start; }
+.message.user { background: var(--user-message-bg); color: var(--font-color-light); border-bottom-right-radius: 4px; align-self: flex-end; }
+.message.typing { font-style: italic; color: #888; align-self: flex-start; }
 
-.message.bot { 
-    background: var(--bot-message-bg); 
-    color: var(--font-color); 
-    border-bottom-left-radius: 4px; 
-    align-self: flex-start; /* Aligns bot messages to the left */
-}
-
-.message.user { 
-    background: var(--user-message-bg); 
-    color: var(--font-color-light); 
-    border-bottom-right-radius: 4px; 
-    align-self: flex-end; /* Aligns user messages to the right */
-}
-
-.message.typing { 
-    font-style: italic; 
-    color: #888; 
-    align-self: flex-start; /* Aligns typing indicator to the left */
-}
-
-#chat-input-container { padding: 10px; background: var(--widget-bg); }
+#chat-input-container { padding: 10px; background: var(--widget-bg); border-top: 1px solid #ddd;}
 #chat-form { display: flex; }
-#chat-input {
-    flex-grow: 1;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    padding: 10px 15px;
-    font-size: 1em;
-    outline: none;
-}
-#send-btn {
-    background: var(--primary-color);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    margin-left: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+#chat-input { flex-grow: 1; border: 1px solid #ccc; border-radius: 20px; padding: 10px 15px; font-size: 1em; outline: none;}
+#send-btn { background: var(--primary-color); border: none; border-radius: 50%; width: 40px; height: 40px; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
 #send-btn svg { color: white; width: 20px; height: 20px; }
 #send-btn:disabled { background-color: #aaa; }
