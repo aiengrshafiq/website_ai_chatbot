@@ -1,5 +1,3 @@
-// /backend/host.json
-
 {
   "version": "2.0",
   "logging": {
@@ -19,12 +17,9 @@
       "defaultExecutablePath": "gunicorn",
       "workingDirectory": "",
       "arguments": [
-        "-w",
-        "4",
-        "-k",
-        "uvicorn.workers.UvicornWorker",
-        "-b",
-        "0.0.0.0:8000",
+        "-w", "4",
+        "-k", "uvicorn.workers.UvicornH11Worker",
+        "--bind", "0.0.0.0:%FUNCTIONS_CUSTOMHANDLER_PORT%",
         "main:app"
       ]
     },
