@@ -15,19 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // This is the new, more direct click logic
         const toggleVisibility = () => {
-            console.log("Bubble or Close clicked! Toggling visibility.");
-            const isHidden = chatWindow.style.opacity === '0' || chatWindow.style.opacity === '';
-            if (isHidden) {
-                chatWindow.style.opacity = '1';
-                chatWindow.style.transform = 'scale(1)';
-                chatWindow.style.pointerEvents = 'auto';
-                setTimeout(() => document.getElementById('chat-input').focus(), 100);
-            } else {
-                chatWindow.style.opacity = '0';
-                chatWindow.style.transform = 'scale(0)';
-                chatWindow.style.pointerEvents = 'none';
-            }
-        };
+    console.log("Bubble or Close clicked! Toggling visibility.");
+    const isHidden = chatWindow.classList.contains('hidden');
+
+    if (isHidden) {
+        chatWindow.classList.remove('hidden');
+        chatWindow.style.opacity = '1';
+        chatWindow.style.transform = 'scale(1)';
+        chatWindow.style.pointerEvents = 'auto';
+        setTimeout(() => document.getElementById('chat-input').focus(), 100);
+    } else {
+        chatWindow.classList.add('hidden');
+        chatWindow.style.opacity = '0';
+        chatWindow.style.transform = 'scale(0)';
+        chatWindow.style.pointerEvents = 'none';
+    }
+};
 
         chatBubble.addEventListener('click', toggleVisibility);
         document.getElementById('close-btn').addEventListener('click', toggleVisibility);
