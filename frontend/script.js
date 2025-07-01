@@ -1,9 +1,128 @@
-// /frontend/script.js - FINAL VERSION
+// /frontend/script.js - FINAL ROBUST VERSION
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Create and Inject HTML & CSS ---
-    // This block creates the chatbot's HTML and CSS link dynamically,
-    // ensuring it works on any website.
+
+    // --- This function will now contain all the chatbot's logic ---
+    function initChatbot() {
+        // --- DOM Element References (now they are guaranteed to exist) ---
+        const chatBubble = document.getElementById('chat-bubble');
+        const chatWindow = document.getElementById('chat-window');
+        const closeBtn = document.getElementById('close-btn');
+        const chatBody = document.getElementById('chat-body');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // --- State Management ---
+        let chatHistory = [];
+        const API_BASE_URL = 'https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net';
+
+        // --- UI Event Listeners ---
+        chatBubble.addEventListener('click', () => toggleChatWindow());
+        closeBtn.addEventListener('click', () => toggleChatWindow());
+
+        // --- Main Logic ---
+        function toggleChatWindow() {
+            chatWindow.classList.toggle('hidden');
+            if (!chatWindow.classList.contains('hidden')) {
+                setTimeout(() => chatInput.focus(), 100);
+            }
+        }
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userMessage = chatInput.value.trim();
+            if (userMessage && !sendBtn.disabled) {
+                handleUserMessage(userMessage);
+            }
+        });
+
+        function handleUserMessage(message) {
+            addMessageToUI(message, 'user');
+            chatHistory.push({ role: 'user', content: message });
+            chatInput.value = '';
+            showTypingIndicator();
+            getBotResponse();
+        }
+
+        async function getBotResponse() {
+            const payload = {
+                message: chatHistory[chatHistory.length - 1].content,
+                history: chatHistory.slice(0, -1)
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok.');
+
+                removeTypingIndicator();
+
+                const botMessageElement = document.createElement('div');
+                botMessageElement.className = 'message bot';
+                chatBody.appendChild(botMessageElement);
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let botReply = '';
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value);
+                    botReply += chunk;
+                    botMessageElement.innerHTML = marked.parse(botReply);
+                    scrollToBottom();
+                }
+                chatHistory.push({ role: 'assistant', content: botReply });
+            } catch (error) {
+                console.error('Error fetching bot response:', error);
+                removeTypingIndicator();
+                addMessageToUI("I'm having trouble connecting right now. Please try again later.", 'bot');
+            }
+        }
+
+        function addMessageToUI(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender}`;
+            if (sender === 'bot') {
+                messageElement.innerHTML = marked.parse(message);
+            } else {
+                messageElement.textContent = message;
+            }
+            chatBody.appendChild(messageElement);
+            scrollToBottom();
+        }
+
+        let typingIndicator;
+        function showTypingIndicator() {
+            sendBtn.disabled = true;
+            typingIndicator = document.createElement('div');
+            typingIndicator.className = 'message bot typing';
+            typingIndicator.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+            chatBody.appendChild(typingIndicator);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            sendBtn.disabled = false;
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function scrollToBottom() {
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    }
+
+
+    // --- This is the new setup block at the bottom ---
+    // It creates the elements first, then calls initChatbot()
 
     // 1. Inject the CSS file
     const cssLink = document.createElement('link');
@@ -40,124 +159,13 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.body.appendChild(chatWidgetContainer);
 
-    // --- Add the Markdown library ---
+    // 3. Add the Markdown library, then initialize the chatbot
     const markedScript = document.createElement('script');
     markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    markedScript.onload = () => {
+        // IMPORTANT: Call initChatbot() only AFTER marked.js has loaded.
+        initChatbot();
+    };
     document.head.appendChild(markedScript);
 
-
-    // --- DOM Element References (now they are guaranteed to exist) ---
-    const chatBubble = document.getElementById('chat-bubble');
-    const chatWindow = document.getElementById('chat-window');
-    const closeBtn = document.getElementById('close-btn');
-    const chatBody = document.getElementById('chat-body');
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-btn');
-
-    // --- State Management ---
-    let chatHistory = [];
-    const API_BASE_URL = 'https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net';
-
-    // --- UI Event Listeners ---
-    chatBubble.addEventListener('click', () => toggleChatWindow());
-    closeBtn.addEventListener('click', () => toggleChatWindow());
-
-    // --- Main Logic ---
-    function toggleChatWindow() {
-        chatWindow.classList.toggle('hidden');
-        if (!chatWindow.classList.contains('hidden')) {
-            setTimeout(() => chatInput.focus(), 100);
-        }
-    }
-
-    chatForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const userMessage = chatInput.value.trim();
-        if (userMessage) {
-            handleUserMessage(userMessage);
-        }
-    });
-
-    function handleUserMessage(message) {
-        addMessageToUI(message, 'user');
-        chatHistory.push({ role: 'user', content: message });
-        chatInput.value = '';
-        showTypingIndicator();
-        getBotResponse();
-    }
-
-    async function getBotResponse() {
-        const payload = {
-            message: chatHistory[chatHistory.length - 1].content,
-            history: chatHistory.slice(0, -1)
-        };
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok.');
-
-            removeTypingIndicator();
-
-            const botMessageElement = document.createElement('div');
-            botMessageElement.className = 'message bot';
-            chatBody.appendChild(botMessageElement);
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let botReply = '';
-
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-                const chunk = decoder.decode(value);
-                botReply += chunk;
-                botMessageElement.innerHTML = marked.parse(botReply);
-                scrollToBottom();
-            }
-            chatHistory.push({ role: 'assistant', content: botReply });
-        } catch (error) {
-            console.error('Error fetching bot response:', error);
-            removeTypingIndicator();
-            addMessageToUI("I'm having trouble connecting right now. Please try again later.", 'bot');
-        }
-    }
-
-    function addMessageToUI(message, sender) {
-        const messageElement = document.createElement('div');
-        messageElement.className = `message ${sender}`;
-        if (sender === 'bot') {
-            messageElement.innerHTML = marked.parse(message);
-        } else {
-            messageElement.textContent = message;
-        }
-        chatBody.appendChild(messageElement);
-        scrollToBottom();
-    }
-
-    let typingIndicator;
-    function showTypingIndicator() {
-        sendBtn.disabled = true;
-        typingIndicator = document.createElement('div');
-        typingIndicator.className = 'message bot typing';
-        typingIndicator.innerHTML = '<span>.</span><span>.</span><span>.</span>';
-        chatBody.appendChild(typingIndicator);
-        scrollToBottom();
-    }
-
-    function removeTypingIndicator() {
-        sendBtn.disabled = false;
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
-    }
-
-    function scrollToBottom() {
-        chatBody.scrollTop = chatBody.scrollHeight;
-    }
 });
