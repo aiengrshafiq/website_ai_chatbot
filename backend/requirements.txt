@@ -7,3 +7,4 @@ pydantic
 python-dotenv
 gunicorn
 fastapi-cors
+aiofiles
