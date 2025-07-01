@@ -14,10 +14,22 @@ document.addEventListener('DOMContentLoaded', () => {
         let chatHistory = [];
         const API_BASE_URL = 'https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net';
 
-        // This function now toggles the 'open' class
+        // This function now uses direct style manipulation for maximum reliability.
         const toggleChatWindow = () => {
-            chatWindow.classList.toggle('open');
-            if (chatWindow.classList.contains('open')) {
+            const isOpen = chatWindow.classList.contains('open');
+
+            if (isOpen) {
+                // Hide the window
+                chatWindow.classList.remove('open');
+                chatWindow.style.opacity = '0';
+                chatWindow.style.transform = 'scale(0)';
+                chatWindow.style.pointerEvents = 'none';
+            } else {
+                // Show the window
+                chatWindow.classList.add('open');
+                chatWindow.style.opacity = '1';
+                chatWindow.style.transform = 'scale(1)';
+                chatWindow.style.pointerEvents = 'auto';
                 setTimeout(() => chatInput.focus(), 100);
             }
         };
@@ -25,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBubble.addEventListener('click', toggleChatWindow);
         closeBtn.addEventListener('click', toggleChatWindow);
         
-        // --- Chat Logic ---
+        // --- Chat Logic (no changes needed here) ---
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const userMessage = chatInput.value.trim();
@@ -120,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const chatWidgetContainer = document.createElement('div');
     chatWidgetContainer.id = 'chat-widget-container';
+    // The chat-window div is now created without the 'hidden' class, as JS controls its style directly.
     chatWidgetContainer.innerHTML = `
         <div id="chat-bubble">
              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
@@ -136,11 +149,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const markedScript = document.createElement('script');
     markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-    markedScript.onload = () => initChatbot();
+    
+    markedScript.onload = () => {
+        initChatbot(); 
+    };
+    
     markedScript.onerror = () => {
         console.warn('marked.js failed to load. Using plain text fallback.');
         window.marked = { parse: (text) => text };
         initChatbot();
     };
+
     document.head.appendChild(markedScript);
 });
