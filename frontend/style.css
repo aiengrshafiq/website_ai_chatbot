@@ -94,10 +94,10 @@
 
 .chat-header h3 {
     margin: 0;
-    font-size: 21px;
+    font-size: 23px;
     line-height: 24px; /* Match logo height */
     position: relative;
-    top: 1px; /* Nudges the text down slightly */
+    top: 1.5px; /* Nudges the text down slightly */
 }
 
 
