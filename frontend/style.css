@@ -85,13 +85,22 @@
     align-items: center;
     gap: 10px;
 }
-
 .chat-logo {
-    height: 30px;
+    height: 24px;
     width: auto;
     border-radius: 4px;
+    display: block;
 }
-.chat-header h3 { margin: 0; font-size: 1.1em; }
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 21px;
+    line-height: 24px; /* Match logo height */
+    display: flex;
+    align-items: flex-end;
+}
+
+
 #close-btn { background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; }
 
 .message {
