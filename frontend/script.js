@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div id="chat-window" style="opacity:0; transform:scale(0); pointer-events:none;">
             
-            <div class="chat-header"><div class="chat-branding"><img src="https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net/static/logo.png" alt="Logo" class="chat-logo"><h3>6T3 Assistant</h3></div><button id="close-btn">&times;</button></div>
+            <div class="chat-header"><div class="chat-branding"><img src="https://6t3mediachatbot-d6hvfrg5gah4djcd.uaenorth-01.azurewebsites.net/static/logo.png" alt="Logo" class="chat-logo"><h3>Assistant</h3></div><button id="close-btn">&times;</button></div>
             <div id="chat-body"><div class="message bot">Hello! How can I help you today?</div></div>
             <div id="chat-input-container">
                  <form id="chat-form"><input type="text" id="chat-input" placeholder="Type your message..." autocomplete="off" required><button type="submit" id="send-btn" aria-label="Send"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button></form>
