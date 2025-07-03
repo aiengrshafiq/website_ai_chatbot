@@ -96,8 +96,8 @@
     margin: 0;
     font-size: 21px;
     line-height: 24px; /* Match logo height */
-    display: flex;
-    align-items: flex-end;
+    position: relative;
+    top: 1px; /* Nudges the text down slightly */
 }
 
 
