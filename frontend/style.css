@@ -1,6 +1,6 @@
 /* /frontend/style.css - FINAL PRODUCTION VERSION */
 :root {
-    --primary-color: #007bff;
+    --primary-color: #080808;
     --background-color: #f4f7f6;
     --widget-bg: #ffffff;
     --bot-message-bg: #e9ecef;
@@ -70,7 +70,8 @@
     pointer-events: auto;
 }
 
-.chat-header {
+
+ .chat-header {
     background: var(--primary-color);
     color: var(--font-color-light);
     padding: 15px;
@@ -78,6 +79,17 @@
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
+}
+.chat-branding {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-logo {
+    height: 30px;
+    width: auto;
+    border-radius: 4px;
 }
 .chat-header h3 { margin: 0; font-size: 1.1em; }
 #close-btn { background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; }
