@@ -8,3 +8,5 @@ python-dotenv
 gunicorn
 fastapi-cors
 aiofiles
+httpx
+slowapi
