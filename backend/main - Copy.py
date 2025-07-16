@@ -36,9 +36,6 @@ client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 PIPEDRIVE_API_TOKEN = os.getenv("PIPEDRIVE_API_TOKEN")
 PIPEDRIVE_DOMAIN = os.getenv("PIPEDRIVE_DOMAIN")
 
-# --- NEW SLACK CONFIGURATION ---
-SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
-
 # --- Pydantic Models ---
 class ChatRequest(BaseModel):
     message: str
@@ -103,33 +100,6 @@ class PipedriveManager:
 
 pipedrive_manager = PipedriveManager(PIPEDRIVE_DOMAIN, PIPEDRIVE_API_TOKEN)
 
-# --- NEW SLACK NOTIFIER ---
-async def send_slack_notification(name: str, email: str, phone: str):
-    """Asynchronously sends a notification to a Slack channel using a webhook."""
-    if not SLACK_WEBHOOK_URL:
-        logging.warning("SLACK_WEBHOOK_URL not configured. Skipping Slack notification.")
-        return
-
-    message = {
-        "text": (
-            f"*New Lead from Website Chatbot* 🤖\n\n"
-            f"*Name:* {name}\n"
-            f"*Email:* {email}\n"
-            f"*Phone:* {phone}\n"
-            f"*Source:* Website Chatbot"
-        )
-    }
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(SLACK_WEBHOOK_URL, json=message)
-            response.raise_for_status()
-            logging.info("Successfully sent lead notification to Slack.")
-    except httpx.HTTPStatusError as e:
-        logging.error(f"Failed to send Slack notification. Status: {e.response.status_code}")
-    except Exception as e:
-        logging.error(f"An unexpected error occurred sending Slack notification: {e}")
-
-
 # --- Main Chat Endpoint with Rate Limiting ---
 @app.post("/api/chat")
 @limiter.limit("5/minute")
@@ -174,11 +144,6 @@ After using the function, confirm to the user that their details have been recei
                 tool_response = await pipedrive_manager.get_or_create_person_and_deal(
                     name=args.get("name"), email=args.get("email"), phone=args.get("phone")
                 )
-
-                # --- NEW: Send Slack Notification ---
-                # After a successful Pipedrive entry, send a notification to Slack.
-                if "Successfully created" in tool_response:
-                    await send_slack_notification(name=name, email=email, phone=phone)
                 
                 messages.append(response_message)
                 messages.append({"tool_call_id": tool_call.id, "role": "tool", "name": "create_pipedrive_deal", "content": tool_response})
