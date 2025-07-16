@@ -178,7 +178,7 @@ After using the function, confirm to the user that their details have been recei
                 # --- NEW: Send Slack Notification ---
                 # After a successful Pipedrive entry, send a notification to Slack.
                 if "Successfully created" in tool_response:
-                    await send_slack_notification(name=name, email=email, phone=phone)
+                    await send_slack_notification(name=args.get("name"), email=args.get("email"), phone=args.get("phone"))
                 
                 messages.append(response_message)
                 messages.append({"tool_call_id": tool_call.id, "role": "tool", "name": "create_pipedrive_deal", "content": tool_response})
